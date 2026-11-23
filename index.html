@@ -141,12 +141,12 @@
 
     <script src="script.js"></script>
 </body>
-<!-- Firebase App (Modular) -->
+<!-- Firebase Realtime Database Script -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // ตั้งค่า Firebase ของคุณ (สามารถสมัครฟรีที่ firebase.google.com)
+    // 1. ใส่ค่า Config ของคุณจาก Firebase Console
     const firebaseConfig = {
         apiKey: "YOUR_API_KEY",
         authDomain: "YOUR_AUTH_DOMAIN",
@@ -159,10 +159,10 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const krathongsRef = ref(db, 'krathongs');
 
-    // ส่งข้อมูลกระทงขึ้น Database เมื่อมีคนกดปุ่มลอย
+    // 2. ฟังก์ชันส่งข้อมูลกระทงขึ้นฐานข้อมูลกลาง
     window.sendKrathongToFirebase = function(name, wish, visualContent, isCustom) {
-        const krathongsRef = ref(db, 'krathongs');
         push(krathongsRef, {
             name: name,
             wish: wish,
@@ -172,14 +172,14 @@
         });
     };
 
-    // ฟังข้อมูลจากคนอื่นในห้อง แล้วสร้างกระทงลอยขึ้นมาหน้าจออัตโนมัติ
-    const krathongsRef = ref(db, 'krathongs');
+    // 3. ฟังข้อมูลจากฐานข้อมูลกลาง (เมื่อใครก็ตามส่งกระทงมา ทุกคนจะเห็นพร้อมกันผ่านฟังก์ชันนี้รอบเดียว)
     onChildAdded(krathongsRef, (snapshot) => {
         const data = snapshot.val();
-        // ป้องกันไม่ให้โหลดกระทงเก่าทั้งหมดมาค้างตู้มเดียว (ดึงเฉพาะที่ส่งมาใหม่หรือในช่วงเวลาใกล้เคียง)
-        if (Date.now() - data.timestamp < 60000) { 
+        // กรองแสดงเฉพาะกระทงที่ถูกส่งเข้ามาสดๆ (ป้องกันการโหลดของเก่าย้อนหลังทั้งหมดทีเดียว)
+        if (Date.now() - data.timestamp < 15000) {
             createKrathongElement(data.name, data.wish, data.visualContent, data.isCustom);
         }
     });
+</script>
 </script>
 </html>

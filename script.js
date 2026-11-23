@@ -169,7 +169,6 @@ function createKrathongElement(name, wish, visualContent, isCustomDrawing = fals
         item.remove();
     }, randomDuration * loops * 1000);
 }
-
 function launchKrathong() {
     if (launchCount >= MAX_KRATHONG) {
         alert(`ขออภัยครับ จำกัดการลอยกระทงไม่เกิน ${MAX_KRATHONG} ครั้งต่อคนครับ`);
@@ -177,7 +176,7 @@ function launchKrathong() {
     }
 
     if (selectedType === 'draw' && !hasDrawn) {
-        alert("กรุณาวาดรูปกระทงของคุณก่อนปล่อยลงน้ำนะครับ 🎨");
+        alert("กรุณาวาดรูปกระทงก่อนปล่อยลงน้ำนะครับ 🎨");
         return;
     }
 
@@ -196,11 +195,11 @@ function launchKrathong() {
         clearCanvas();
     }
 
-    // เรียกฟังก์ชันส่งข้อมูลขึ้น Firebase เพื่อให้ทุกคนเห็นร่วมกัน
+    // ส่งข้อมูลขึ้น Firebase กลาง (ระบบ Real-time จะสร้างกระทงขึ้นมาให้เองโดยอัตโนมัติรอบเดียว ไม่สร้างซ้ำซ้อน)
     if (window.sendKrathongToFirebase) {
         window.sendKrathongToFirebase(name, wish, visualContent, isCustom);
     } else {
-        // กรณีเทสแบบ Offline ทั่วไป
+        // กรณีเผื่อยังไม่ได้ต่อ Firebase ให้แสดงผลในเครื่องตัวเองรอบเดียว
         createKrathongElement(name, wish, visualContent, isCustom);
     }
 
@@ -209,7 +208,6 @@ function launchKrathong() {
     localStorage.setItem('t2_krathong_count', launchCount);
     updateQuotaDisplay();
 }
-
 window.onload = () => {
     updateQuotaDisplay(); 
     setTimeout(() => createKrathongElement("ตัวแทนสภานักเรียนโรงเรียนเทศบาล๒", "สืบสานประเพณีไทย ร่วมใจรักษ์สายน้ำ", "🪷", false), 400);
